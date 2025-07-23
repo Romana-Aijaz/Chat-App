@@ -1,6 +1,3 @@
-
-
-
 const Sidebar = ({ users, onSelectUser, selectedUserId }) => {
   return (
     <div className="w-64 bg-white border-r h-full overflow-y-auto">
@@ -15,7 +12,7 @@ const Sidebar = ({ users, onSelectUser, selectedUserId }) => {
             }`}
           >
             <img
-              src={user.avatar}
+              src='https://randomuser.me/api/portraits/women/25.jpg'
               alt={user.name}
               className="w-8 h-8 rounded-full object-cover mr-3"
             />
