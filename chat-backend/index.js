@@ -4,7 +4,7 @@ const { Server } = require('socket.io'); // ✅ add this
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
-
+const uploadRoutes = require('./routes/upload')
 dotenv.config();
 
 const userRoutes = require('./routes/userRoutes');
@@ -26,6 +26,11 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes); 
 app.use('/api/messages', messageRoutes);
+// other middlewares
+app.use('/api/upload', uploadRoutes);
+
+// serve static files
+app.use('/uploads', express.static('uploads'));
 
 // ✅ Socket.io setup
 io.on('connection', (socket) => {
@@ -38,13 +43,24 @@ io.on('connection', (socket) => {
   });
 
   // Receive message and broadcast
-  socket.on('sendMessage', async ({ sender, receiver, text }) => {
-    console.log(sender)
-    const newMessage = await Message.create({ sender, receiver, text });
+  socket.on('sendMessage', async (data) => {
+    const { sender, receiver, text, fileUrl, messageType } = data;
+console.log(sender)
+  const messagePayload = {
+    sender,
+    receiver,
+    ...(text && { text }),
+    ...(fileUrl && { fileUrl }),
+    messageType: messageType || 'text',
+  };
 
-    // Emit message to receiver
+  try {
+    const newMessage = await Message.create(messagePayload);
     io.to(receiver).emit('receiveMessage', newMessage);
     io.to(sender).emit('messageSent', newMessage);
+  } catch (error) {
+    console.error('Error sending message via socket:', error);
+  }
   });
 
   socket.on('disconnect', () => {
