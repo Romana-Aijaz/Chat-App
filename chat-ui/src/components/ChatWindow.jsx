@@ -61,6 +61,23 @@ const ChatWindow = ({ selectedUser, loggedInUser, socket }) => {
       </div>
     );
   }
+const handleFileUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('sender', loggedInUser.id);
+  formData.append('receiver', selectedUser._id);
+
+  try {
+    const res = await axios.post('http://localhost:5000/api/upload', formData);
+    socket.emit('sendMessage', res.data); // notify via socket
+    setMessages((prev) => [...prev, res.data]);
+  } catch (err) {
+    console.error('File upload failed', err);
+  }
+};
 
   return (
     <div className="flex flex-col flex-1 h-full">
@@ -70,17 +87,29 @@ const ChatWindow = ({ selectedUser, loggedInUser, socket }) => {
 
       <div className="flex-1 p-4 overflow-y-auto space-y-2 bg-gray-50">
         {messages.map((msg) => (
-          <div
-            key={msg._id}
-            className={`max-w-xs px-4 py-2 rounded-lg ${
-              msg.sender === loggedInUser.id
-                ? 'bg-blue-500 text-white self-end ml-auto'
-                : 'bg-gray-200 text-gray-800 self-start'
-            }`}
-          >
-            {msg.text}
-          </div>
-        ))}
+  <div
+    key={msg._id}
+    className={`max-w-xs px-4 py-2 rounded-lg ${
+      msg.sender === loggedInUser.id
+        ? 'bg-blue-500 text-white self-end ml-auto'
+        : 'bg-gray-200 text-gray-800 self-start'
+    }`}
+  >
+    {msg.messageType === 'file' ? (
+      <a
+        href={msg.fileUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline"
+      >
+        📎 File
+      </a>
+    ) : (
+      msg.text
+    )}
+  </div>
+))}
+
       </div>
 
       <div className="p-4 border-t bg-white flex gap-2">
@@ -98,6 +127,12 @@ const ChatWindow = ({ selectedUser, loggedInUser, socket }) => {
         >
           Send
         </button>
+        <input
+  type="file"
+  onChange={handleFileUpload}
+  className="text-sm"
+/>
+
       </div>
     </div>
   );

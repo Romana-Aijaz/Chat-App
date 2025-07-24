@@ -14,8 +14,9 @@ const messageSchema = new mongoose.Schema(
     },
     text: {
       type: String,
-      required: true,
     },
+    fileUrl: { type: String }, // ✅ new
+    messageType: { type: String, enum: ['text', 'file'], default: 'text' },
   },
   { timestamps: true }
 );
