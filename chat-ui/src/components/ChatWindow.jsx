@@ -13,7 +13,7 @@ const ChatWindow = ({ selectedUser, loggedInUser, socket }) => {
         .then((res) => setMessages(res.data))
         .catch((err) => console.error('Failed to fetch messages:', err));
     }
-  }, [selectedUser]);
+  }, [selectedUser, messages]);
 
   // ✅ Real-time receive message
   useEffect(() => {

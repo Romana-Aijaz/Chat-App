@@ -11,27 +11,12 @@ export default function Home() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [users, setUsers] = useState([]);
-useEffect(() => {
-  const fetchUsers = async () => {
-    try {
-      const res = await fetch('http://localhost:5000/api/users', {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`,
-        },
-      });
-      const data = await res.json();
-      setUsers(data);
-    } catch (err) {
-      console.error('Fetch error:', err);
-    }
-  };
 
-  fetchUsers();
-}, []);
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('token');
-
+console.log("token here:")
+console.log(token)
     if (storedUser) {
       setLoggedInUser(JSON.parse(storedUser));
       socket.emit('join', { userId: JSON.parse(storedUser)._id });
